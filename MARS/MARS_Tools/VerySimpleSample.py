@@ -18,7 +18,15 @@ sys.path.append(MARS_PATH)
 
 import pandas as pd
 import time
+import math
+import datetime
 import Base.DataAccess as Da
+
+
+def print_dataframe(df):
+    print("<<<<Data")
+    df.to_csv(sys.stdout)
+    print("Data>>>")
 
 
 def process_my_data(my_data):
@@ -26,12 +34,19 @@ def process_my_data(my_data):
 
     print("Running process_my_data()...")
     buffer = []
+
+    current_date = datetime.date(2020, 1, 10)
+
     for i in range(25):
         print('Step {}'.format(i))
-        time.sleep(0.2)
-        buffer.append([i, 10 * i, 100 * i])
+        time.sleep(0.01)
+        buffer.append([current_date,
+                       'ABC{}'.format(i + 1),
+                       math.sqrt(1000 * i),
+                       i % 4 + 1])
+        current_date = current_date + datetime.timedelta(days=15)
 
-    result = pd.DataFrame(buffer, columns=["One", "Two", "Three"])
+    result = pd.DataFrame(buffer, columns=["Date", "Name", "Amount", "Size"])
 
     return result
 
@@ -47,6 +62,7 @@ print("Starting the MARS tool...")
 
 input_data = pd.DataFrame()
 output_data = process_my_data(input_data)
-print(output_data)
+
+print_dataframe(output_data)
 
 print("Done")
