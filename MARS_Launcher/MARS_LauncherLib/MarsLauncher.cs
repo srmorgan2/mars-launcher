@@ -26,7 +26,7 @@ namespace MARS_LauncherLib
         public String Output { get => _output.ToString(); }
         public String Errors { get => _errors.ToString(); }
 
-        public MarsLauncher(string marsFolder, string pythonProgram = @"C:\Anaconda3\python.exe")
+        public MarsLauncher(string marsFolder, string pythonProgram = @"c:/ProgramData/Anaconda3/python.exe" /*@"C:\Anaconda3\python.exe"*/)
         {
             if (!Directory.Exists(marsFolder))
                 throw new ApplicationException(string.Format("MARS folder not found: {0}", marsFolder));
@@ -48,7 +48,7 @@ namespace MARS_LauncherLib
             _output.AppendLine(e.Data);
         }
 
-        public DataSet Run(string pythonFile, string inputXml)
+        public DataSet Run(string pythonFile, string stdInput)
         {
             _errors.Clear();
             _output.Clear();
@@ -64,15 +64,20 @@ namespace MARS_LauncherLib
             var process = new Process();
             process.StartInfo.WorkingDirectory = _marsFolder;
             process.StartInfo.FileName = _pythonExeFile;
-            process.StartInfo.Arguments = pythonFile +" " + _marsFolder;
+            process.StartInfo.Arguments = pythonFile + " " + _marsFolder;
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardInput = true;
             process.StartInfo.RedirectStandardError = true;
             process.OutputDataReceived += new DataReceivedEventHandler(p_OutputDataReceived);
 
             process.Start();
+            StreamWriter myStreamWriter = process.StandardInput;
+            myStreamWriter.Write(stdInput);
+            myStreamWriter.Close();
+
             process.BeginOutputReadLine();
             process.WaitForExit();
 
