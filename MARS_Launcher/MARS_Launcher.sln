@@ -7,20 +7,40 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MARS_LauncherGUI", "MARS_La
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MARS_LauncherLib", "MARS_LauncherLib\MARS_LauncherLib.csproj", "{C3F62E74-D38F-412A-935E-3D5A889EFC4F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gemini", "..\Gemini\Gemini.csproj", "{5B65EE96-D1F7-4B95-BE64-6BE370CD026C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{FF4F35EF-DD8E-4C0E-A4C1-404092554135}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FF4F35EF-DD8E-4C0E-A4C1-404092554135}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF4F35EF-DD8E-4C0E-A4C1-404092554135}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FF4F35EF-DD8E-4C0E-A4C1-404092554135}.Debug|x86.Build.0 = Debug|Any CPU
 		{FF4F35EF-DD8E-4C0E-A4C1-404092554135}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF4F35EF-DD8E-4C0E-A4C1-404092554135}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF4F35EF-DD8E-4C0E-A4C1-404092554135}.Release|x86.ActiveCfg = Release|Any CPU
+		{FF4F35EF-DD8E-4C0E-A4C1-404092554135}.Release|x86.Build.0 = Release|Any CPU
 		{C3F62E74-D38F-412A-935E-3D5A889EFC4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C3F62E74-D38F-412A-935E-3D5A889EFC4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3F62E74-D38F-412A-935E-3D5A889EFC4F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C3F62E74-D38F-412A-935E-3D5A889EFC4F}.Debug|x86.Build.0 = Debug|Any CPU
 		{C3F62E74-D38F-412A-935E-3D5A889EFC4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3F62E74-D38F-412A-935E-3D5A889EFC4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3F62E74-D38F-412A-935E-3D5A889EFC4F}.Release|x86.ActiveCfg = Release|Any CPU
+		{C3F62E74-D38F-412A-935E-3D5A889EFC4F}.Release|x86.Build.0 = Release|Any CPU
+		{5B65EE96-D1F7-4B95-BE64-6BE370CD026C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B65EE96-D1F7-4B95-BE64-6BE370CD026C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B65EE96-D1F7-4B95-BE64-6BE370CD026C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5B65EE96-D1F7-4B95-BE64-6BE370CD026C}.Debug|x86.Build.0 = Debug|Any CPU
+		{5B65EE96-D1F7-4B95-BE64-6BE370CD026C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B65EE96-D1F7-4B95-BE64-6BE370CD026C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B65EE96-D1F7-4B95-BE64-6BE370CD026C}.Release|x86.ActiveCfg = Release|Any CPU
+		{5B65EE96-D1F7-4B95-BE64-6BE370CD026C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

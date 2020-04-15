@@ -17,13 +17,18 @@ namespace MARS_LauncherLib
      * ---------------------------------*/
     public class MarsLauncher
     {
+        const string BEGIN_DATA = "<<<<Data";
+        const string END_DATA = "Data>>>";
         private string _pythonExeFile;
         private string _marsFolder;
 
         private List<string> _errors;
-        private StringBuilder _output;
+        private StringBuilder _outputMessages;
+        private StringBuilder _outputData;
+        private OutputMode _outputMode;
 
-        public String Output { get => _output.ToString(); }
+        public String Output { get => _outputMessages.ToString(); }
+        public String OutputData { get => _outputData.ToString(); }
         public String Errors { get => _errors.ToString(); }
 
         public MarsLauncher(string marsFolder, string pythonProgram = @"c:/ProgramData/Anaconda3/python.exe" /*@"C:\Anaconda3\python.exe"*/)
@@ -38,20 +43,36 @@ namespace MARS_LauncherLib
 
             _pythonExeFile = pythonProgram;
 
-            _output = new StringBuilder();
+            _outputMessages = new StringBuilder();
+            _outputData = new StringBuilder();
             _errors = new List<string>();
         }
 
 
         private void p_OutputDataReceived(Object sender, DataReceivedEventArgs e)
         {
-            _output.AppendLine(e.Data);
+            if (e.Data == BEGIN_DATA)
+                _outputMode = OutputMode.Data;
+            
+            else if (e.Data == END_DATA)
+                _outputMode = OutputMode.Messages;
+
+            else if (_outputMode == OutputMode.Messages)
+                _outputMessages.AppendLine(e.Data);
+
+            else if (_outputMode == OutputMode.Data)
+                _outputData.AppendLine(e.Data);
+
+            else
+                throw new ApplicationException("Unexpected output mode: " + _outputMode.ToString());
         }
 
         public DataSet Run(string pythonFile, string stdInput)
         {
             _errors.Clear();
-            _output.Clear();
+            _outputMessages.Clear();
+            _outputData.Clear();
+            _outputMode = OutputMode.Messages;
 
             Directory.SetCurrentDirectory(_marsFolder);
 
@@ -83,5 +104,11 @@ namespace MARS_LauncherLib
 
             return result;
         }
+    }
+
+    public enum OutputMode
+    {
+        Messages,
+        Data
     }
 }
