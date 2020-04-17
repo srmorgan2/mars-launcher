@@ -7,11 +7,10 @@
 # ------------------------
 
 import sys
-import json
 
 if len(sys.argv) <= 1:
-    print("Arguments expected.", file=sys.stderr)
-    print("The first argument should be the absolute path to MARS", file=sys.stderr)
+    print("Arguments expected.")
+    print("The first argument should be the absolute path to MARS")
     exit(101)
 
 MARS_PATH = sys.argv[1]
@@ -26,6 +25,7 @@ import Base.DataAccess as Da
 
 def print_dataframe(df):
     print("<<<<Data")
+    print("CSV")
     df.to_csv(sys.stdout)
     print("Data>>>")
 
@@ -33,7 +33,7 @@ def print_dataframe(df):
 def process_my_data(my_data):
     """Simulates a long process to generate a dataframe"""
 
-    print("Running process_my_data()...", file=sys.stderr)
+    print("Running process_my_data()...")
     buffer = []
 
     current_date = datetime.date(2020, 1, 10)
@@ -59,25 +59,11 @@ def process_my_data(my_data):
 database = Da.DataAccess()
 database.test_me()
 
-print("Starting the MARS tool...", file=sys.stderr)
+print("Starting the MARS tool...")
 
-# Get JSON data from stdin and create a DataFrame from it
-input_data = json.load(sys.stdin)
-curve = input_data['Curve']
-input_curve = pd.DataFrame(data=curve['data'], index=curve['index'], columns=curve['columns'])
-input_curve = input_curve.dropna()
-input_curve['Rate'] = pd.to_numeric(input_curve['Rate'], errors='coerce')
-
-# Process the DataFrame (produce dummy discount factors)
+input_data = pd.DataFrame()
 output_data = process_my_data(input_data)
-output_dfs = pd.DataFrame(input_curve)
-output_dfs.rename(columns={'Rate':'DF'}, inplace=True)
-output_dfs['DF'] = 1/ (1 + output_dfs['DF'])
 
-# Example - output Multiple DataFrames to stdout
-result = {}
-result['text'] = 'value'
-result['Input Curve'] = input_curve.to_dict(orient='split')
-result['Output Discount Factors'] = output_dfs.to_dict(orient='split')
-print(json.dumps(result))
-print("Done.", file=sys.stderr)
+print_dataframe(output_data)
+
+print("Done")

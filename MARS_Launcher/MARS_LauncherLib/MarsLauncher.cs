@@ -19,16 +19,19 @@ namespace MARS_LauncherLib
     {
         const string BEGIN_DATA = "<<<<Data";
         const string END_DATA = "Data>>>";
+        string[] ALLOWED_TYPES = { "CSV", "JSON" };
         private string _pythonExeFile;
         private string _marsFolder;
 
         private List<string> _errors;
         private StringBuilder _outputMessages;
         private StringBuilder _outputData;
+        private string _outputDataType;
         private OutputMode _outputMode;
 
         public String Output { get => _outputMessages.ToString(); }
         public String OutputData { get => _outputData.ToString(); }
+        public String OutputDataType { get => _outputDataType; }
         public String Errors { get => _errors.ToString(); }
 
         public MarsLauncher(string marsFolder, string pythonProgram = @"c:/ProgramData/Anaconda3/python.exe" /*@"C:\Anaconda3\python.exe"*/)
@@ -52,10 +55,21 @@ namespace MARS_LauncherLib
         private void p_OutputDataReceived(Object sender, DataReceivedEventArgs e)
         {
             if (e.Data == BEGIN_DATA)
-                _outputMode = OutputMode.Data;
-            
+                _outputMode = OutputMode.Type;
+
             else if (e.Data == END_DATA)
                 _outputMode = OutputMode.Messages;
+
+            else if (_outputMode == OutputMode.Type)
+            {
+                if (ALLOWED_TYPES.Contains(e.Data))
+                {
+                    _outputDataType = e.Data;
+                    _outputMode = OutputMode.Data;
+                }
+                else
+                    throw new ApplicationException("Unexpected output type: " + e.Data);
+            }
 
             else if (_outputMode == OutputMode.Messages)
                 _outputMessages.AppendLine(e.Data);
@@ -65,6 +79,11 @@ namespace MARS_LauncherLib
 
             else
                 throw new ApplicationException("Unexpected output mode: " + _outputMode.ToString());
+        }
+
+        private void p_ErrorDataReceived(Object sender, DataReceivedEventArgs e)
+        {
+            _errors.Add(e.Data);
         }
 
         public DataSet Run(string pythonFile, string stdInput)
@@ -93,6 +112,7 @@ namespace MARS_LauncherLib
             process.StartInfo.RedirectStandardInput = true;
             process.StartInfo.RedirectStandardError = true;
             process.OutputDataReceived += new DataReceivedEventHandler(p_OutputDataReceived);
+            process.ErrorDataReceived += new DataReceivedEventHandler(p_ErrorDataReceived);
 
             process.Start();
             StreamWriter myStreamWriter = process.StandardInput;
@@ -109,6 +129,7 @@ namespace MARS_LauncherLib
     public enum OutputMode
     {
         Messages,
+        Type,
         Data
     }
 }

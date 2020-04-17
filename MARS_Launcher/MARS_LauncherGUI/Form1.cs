@@ -31,7 +31,7 @@ namespace MARS_LauncherGUI
 
             /*----------------------------------
              * A first pass to read the header
-             * and infere the data types
+             * and infer the data types
              * ---------------------------------*/
             var columnNames = new List<string>();
             var columnTypes = new List<Type>();
@@ -144,27 +144,59 @@ namespace MARS_LauncherGUI
             //xml = "Dummy";
 
             string stdInput;
-            var serializer = new JSONComponentSerializer();
-            serializer.startSerialize();
-            serializer.serialize(txtPythonScript, "Python Script");
-            serializer.serialize(txtRootFolder, "Root Folder");
+            var serializer = new JSONDataSerializer();
+            serializer.StartSerialize();
+            serializer.SerializeString(txtPythonScript.Text, "Python Script");
+            serializer.SerializeString(txtRootFolder.Text, "Root Folder");
             //DataTable dtFromGrid = new DataTable();
             //dtFromGrid = dataGridView1.DataSource as DataTable;//?? new DataTable();
-            serializer.serialize(dataGridView1, "Curve");
-            stdInput = serializer.endSerialize();
+            //serializer.serialize(dataGridView1, "Curve");
+            stdInput = serializer.EndSerialize();
 
             txtOutput.Text = "Launching " + txtPythonScript.Text;
             lblStatus.Text = "Running " + txtPythonScript.Text;
             DataSet result = launcher.Run(txtPythonScript.Text, stdInput);
             txtOutput.Text = launcher.Output;
-            var data = ParseCsvToDataTable(launcher.OutputData);
-            dgvResult.DataSource = data;
 
-            // Deserialize the DataFrame "Output Discount Factors" and display it
-            System.Type[] colTypes = new System.Type[] { typeof(string), typeof(double) };
-            serializer.startDeserialize(launcher.Output);
-            DataTable outputTable = serializer.deserialize("Output Discount Factors", colTypes);
-            dataGridView2.DataSource = outputTable;
+            var deserializerFactory = DeserializerFactory.Instance();
+            var deserializer = deserializerFactory.CreateDeserializer(launcher.OutputDataType);
+            //var data = ParseCsvToDataTable(launcher.OutputData);
+            deserializer.StartDeserialize(launcher.OutputData);
+            var dataTables = deserializer.DeserializeDataTables(new string[]{ "Table 1", "Table 2", "Table 3"}.ToList(),
+                new System.Type[] { typeof(DateTime), typeof(string), typeof(double), typeof(double) }.ToList());
+            serializer.EndDeserialize();
+
+            for (int i = 0; i < dataTables.Count; ++i)
+            {
+                TabPage tab = new TabPage();
+                DataGridView dataGridView = new DataGridView();
+
+                dataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+                dataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+                dataGridView.Location = new System.Drawing.Point(3, 3);
+                dataGridView.Name = "dgvResult" + (i + 1).ToString();
+                dataGridView.Size = new System.Drawing.Size(850, 576);
+                dataGridView.TabIndex = 8;
+                dataGridView.DataSource = dataTables[i];
+
+                tab.SuspendLayout();
+                // Add tabpage to tabcontrol
+                tab.Controls.Add(dataGridView);
+                //tab.Text = "Tab" + (i+1).ToString();
+                tab.Text = dataTables[i].TableName;
+                tab.Controls.Add(this.dgvResult);
+                tab.Location = new System.Drawing.Point(4, 25);
+                tab.Name = "tabPage" + (i + 1).ToString();
+                tab.Padding = new System.Windows.Forms.Padding(3);
+                tab.Size = new System.Drawing.Size(856, 582);
+                tab.TabIndex = i+1;
+                tab.Text = "Result: " + dataTables[i].TableName;
+                tab.UseVisualStyleBackColor = true;
+                tab.ResumeLayout();
+
+                tabResult.Controls.Add(tab);
+            }
+            dgvResult.DataSource = dataTables[0];
             lblStatus.Text = "Done";
         }
     }
