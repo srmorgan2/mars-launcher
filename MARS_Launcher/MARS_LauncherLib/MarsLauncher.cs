@@ -25,14 +25,16 @@ namespace MARS_LauncherLib
 
         private List<string> _errors;
         private StringBuilder _outputMessages;
-        private StringBuilder _outputData;
-        private string _outputDataType;
+        private List<StringBuilder> _outputData;
+        private StringBuilder _currentOutputData;
+        private List<string> _outputDataType;
         private OutputMode _outputMode;
 
         public String Output { get => _outputMessages.ToString(); }
-        public String OutputData { get => _outputData.ToString(); }
-        public String OutputDataType { get => _outputDataType; }
+        public List<StringBuilder> OutputData { get => _outputData; }
+        public List<String> OutputDataType { get => _outputDataType; }
         public String Errors { get => _errors.ToString(); }
+        public int Count { get => _outputData.Count; }
 
         public MarsLauncher(string marsFolder, string pythonProgram = @"c:/ProgramData/Anaconda3/python.exe" /*@"C:\Anaconda3\python.exe"*/)
         {
@@ -47,7 +49,8 @@ namespace MARS_LauncherLib
             _pythonExeFile = pythonProgram;
 
             _outputMessages = new StringBuilder();
-            _outputData = new StringBuilder();
+            _outputData = new List<StringBuilder>();
+            _outputDataType = new List<string>();
             _errors = new List<string>();
         }
 
@@ -55,8 +58,9 @@ namespace MARS_LauncherLib
         private void p_OutputDataReceived(Object sender, DataReceivedEventArgs e)
         {
             if (e.Data == BEGIN_DATA)
+            {
                 _outputMode = OutputMode.Type;
-
+            }
             else if (e.Data == END_DATA)
                 _outputMode = OutputMode.Messages;
 
@@ -64,7 +68,9 @@ namespace MARS_LauncherLib
             {
                 if (ALLOWED_TYPES.Contains(e.Data))
                 {
-                    _outputDataType = e.Data;
+                    _outputDataType.Add(e.Data);
+                    _currentOutputData = new StringBuilder();
+                    _outputData.Add(_currentOutputData);
                     _outputMode = OutputMode.Data;
                 }
                 else
@@ -75,7 +81,7 @@ namespace MARS_LauncherLib
                 _outputMessages.AppendLine(e.Data);
 
             else if (_outputMode == OutputMode.Data)
-                _outputData.AppendLine(e.Data);
+                _currentOutputData.AppendLine(e.Data);
 
             else
                 throw new ApplicationException("Unexpected output mode: " + _outputMode.ToString());

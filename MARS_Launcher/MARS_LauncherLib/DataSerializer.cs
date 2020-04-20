@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using System.Data;
 using System.IO;
 using Newtonsoft.Json.Linq;
+using Convert = System.Convert;
+using MemoryStream = System.IO.MemoryStream;
+using Image = System.Drawing.Image;
 
 namespace MARS_LauncherLib
 {
@@ -35,6 +38,9 @@ namespace MARS_LauncherLib
     public interface StructuredDataDeserializer : DataDeserializer
     {
         string DeserializeString(string name);
+
+        Image DeserializeImage(string name);
+        List<Image> DeserializeImages(List<string> names = null);
     }
 
     public class CSVSerializer : DataDeserializer
@@ -139,7 +145,8 @@ namespace MARS_LauncherLib
         public List<DataTable> DeserializeDataTables(List<string> names = null, List<System.Type> columnTypes = null)
         {
             var result = new List<DataTable>();
-            result.Add(DeserializeDataTable(names[0], columnTypes));
+            string name = names != null ? names[0] : "Table 1";
+            result.Add(DeserializeDataTable(name, columnTypes));
             return result;
         }
 
@@ -276,12 +283,40 @@ namespace MARS_LauncherLib
         {
             var result = new List<DataTable>();
             JToken dataFrames = _json["DataFrames"];
-            List<string> tableNames = names != null ? names : null;
-            //IList<string> keys = _json["DataFrames"].Properties().Select(p => p.Name).ToList();
+            IList<string> tableNames = names != null ? names :
+                dataFrames.Children<JProperty>().Select(p => p.Name).ToList();
 
             foreach (var name in tableNames)
             {
                 result.Add(DeserializeDataTable(name, columnTypes));
+            }
+            return result;
+        }
+
+        public Image DeserializeImage(string name)
+        {
+            JToken imageToken = _json["Figures"][name];
+
+            var base64String = imageToken.ToString();
+            byte[] data = Convert.FromBase64String(base64String);
+            using (var stream = new MemoryStream(data, 0, data.Length))
+            {
+                Image image = Image.FromStream(stream);
+                image.Tag = name;
+                return image;
+            }
+        }
+
+        public List<Image> DeserializeImages(List<string> names = null)
+        {
+            var result = new List<Image>();
+            JToken dataFrames = _json["Figures"];
+            IList<string> imageNames = names != null ? names :
+                dataFrames.Children<JProperty>().Select(p => p.Name).ToList();
+
+            foreach (var name in imageNames)
+            {
+                result.Add(DeserializeImage(name));
             }
             return result;
         }
