@@ -39,19 +39,24 @@
             this.label2 = new System.Windows.Forms.Label();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
-            this.dgvResult = new System.Windows.Forms.DataGridView();
             this.txtPythonProgram = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.tabResult = new System.Windows.Forms.TabControl();
+            this.tabInput = new System.Windows.Forms.TabPage();
+            this.dgvInputTable = new System.Windows.Forms.DataGridView();
+            this.dgvInputProperties = new System.Windows.Forms.DataGridView();
             this.tabOutput = new System.Windows.Forms.TabPage();
             this.txtOutput = new System.Windows.Forms.RichTextBox();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.btnClear = new System.Windows.Forms.Button();
+            this.dgvColName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvColValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvResult)).BeginInit();
             this.tabResult.SuspendLayout();
+            this.tabInput.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvInputTable)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvInputProperties)).BeginInit();
             this.tabOutput.SuspendLayout();
-            this.tabPage2.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -150,15 +155,6 @@
             this.lblStatus.Size = new System.Drawing.Size(50, 20);
             this.lblStatus.Text = "Ready";
             // 
-            // dgvResult
-            // 
-            this.dgvResult.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvResult.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvResult.Location = new System.Drawing.Point(3, 3);
-            this.dgvResult.Name = "dgvResult";
-            this.dgvResult.Size = new System.Drawing.Size(859, 560);
-            this.dgvResult.TabIndex = 8;
-            // 
             // txtPythonProgram
             // 
             this.txtPythonProgram.Location = new System.Drawing.Point(157, 37);
@@ -183,13 +179,47 @@
             this.tabResult.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabResult.Controls.Add(this.tabInput);
             this.tabResult.Controls.Add(this.tabOutput);
-            this.tabResult.Controls.Add(this.tabPage2);
             this.tabResult.Location = new System.Drawing.Point(12, 136);
             this.tabResult.Name = "tabResult";
             this.tabResult.SelectedIndex = 0;
             this.tabResult.Size = new System.Drawing.Size(873, 595);
             this.tabResult.TabIndex = 11;
+            // 
+            // tabInput
+            // 
+            this.tabInput.Controls.Add(this.dgvInputTable);
+            this.tabInput.Controls.Add(this.dgvInputProperties);
+            this.tabInput.Location = new System.Drawing.Point(4, 25);
+            this.tabInput.Name = "tabInput";
+            this.tabInput.Size = new System.Drawing.Size(865, 566);
+            this.tabInput.TabIndex = 2;
+            this.tabInput.Text = "Input";
+            this.tabInput.UseVisualStyleBackColor = true;
+            // 
+            // dgvInputTable
+            // 
+            this.dgvInputTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvInputTable.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvInputTable.Location = new System.Drawing.Point(307, 0);
+            this.dgvInputTable.Name = "dgvInputTable";
+            this.dgvInputTable.RowTemplate.Height = 24;
+            this.dgvInputTable.Size = new System.Drawing.Size(558, 566);
+            this.dgvInputTable.TabIndex = 1;
+            // 
+            // dgvInputProperties
+            // 
+            this.dgvInputProperties.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvInputProperties.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.dgvColName,
+            this.dgvColValue});
+            this.dgvInputProperties.Dock = System.Windows.Forms.DockStyle.Left;
+            this.dgvInputProperties.Location = new System.Drawing.Point(0, 0);
+            this.dgvInputProperties.Name = "dgvInputProperties";
+            this.dgvInputProperties.RowTemplate.Height = 24;
+            this.dgvInputProperties.Size = new System.Drawing.Size(307, 566);
+            this.dgvInputProperties.TabIndex = 0;
             // 
             // tabOutput
             // 
@@ -212,22 +242,33 @@
             this.txtOutput.TabIndex = 8;
             this.txtOutput.Text = "";
             // 
-            // tabPage2
+            // btnClear
             // 
-            this.tabPage2.Controls.Add(this.dgvResult);
-            this.tabPage2.Location = new System.Drawing.Point(4, 25);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(865, 566);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Result";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            this.btnClear.Location = new System.Drawing.Point(771, 101);
+            this.btnClear.Margin = new System.Windows.Forms.Padding(4);
+            this.btnClear.Name = "btnClear";
+            this.btnClear.Size = new System.Drawing.Size(100, 28);
+            this.btnClear.TabIndex = 12;
+            this.btnClear.Text = "Clear";
+            this.btnClear.UseVisualStyleBackColor = true;
+            this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
+            // 
+            // dgvColName
+            // 
+            this.dgvColName.HeaderText = "Name";
+            this.dgvColName.Name = "dgvColName";
+            // 
+            // dgvColValue
+            // 
+            this.dgvColValue.HeaderText = "Value";
+            this.dgvColValue.Name = "dgvColValue";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(897, 762);
+            this.Controls.Add(this.btnClear);
             this.Controls.Add(this.tabResult);
             this.Controls.Add(this.txtPythonProgram);
             this.Controls.Add(this.label3);
@@ -247,10 +288,11 @@
             this.menuStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvResult)).EndInit();
             this.tabResult.ResumeLayout(false);
+            this.tabInput.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvInputTable)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvInputProperties)).EndInit();
             this.tabOutput.ResumeLayout(false);
-            this.tabPage2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -268,13 +310,17 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel lblStatus;
-        private System.Windows.Forms.DataGridView dgvResult;
         private System.Windows.Forms.TextBox txtPythonProgram;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TabControl tabResult;
         private System.Windows.Forms.TabPage tabOutput;
         private System.Windows.Forms.RichTextBox txtOutput;
-        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage tabInput;
+        private System.Windows.Forms.DataGridView dgvInputProperties;
+        private System.Windows.Forms.Button btnClear;
+        private System.Windows.Forms.DataGridView dgvInputTable;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dgvColName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dgvColValue;
     }
 }
 

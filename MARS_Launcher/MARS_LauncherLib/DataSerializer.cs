@@ -23,7 +23,8 @@ namespace MARS_LauncherLib
 
     public interface StructuredDataSerializer : DataSerializer
     {
-        void SerializeString(string name, string text);
+        void SerializeScalar(string name, object value);
+        void SerializeDictionary(string name, Dictionary<string, object> dict);
     }
 
     public interface DataDeserializer
@@ -37,7 +38,7 @@ namespace MARS_LauncherLib
 
     public interface StructuredDataDeserializer : DataDeserializer
     {
-        string DeserializeString(string name);
+        object DeserializeScalar(string name);
 
         Image DeserializeImage(string name);
         List<Image> DeserializeImages(List<string> names = null);
@@ -201,14 +202,30 @@ namespace MARS_LauncherLib
             _json = null;
         }
 
-        public void SerializeString(string name, string text)
+        public void SerializeScalar(string name, object value)
         {
-            _json[name] = text;
+            if (!_json.ContainsKey("Scalars"))
+                _json.Add("Scalars", new JObject());
+            _json["Scalars"][name] = JToken.FromObject(value);
         }
 
-        public string DeserializeString(string name)
+        public object DeserializeScalar(string name)
         {
-            return _json[name].ToString();
+            return _json["Scalars"][name];
+        }
+
+        public void SerializeDictionary(string name, Dictionary<string, object> dict)
+        {
+            _json["Dictionaries"] = new JObject();
+            JObject jsDict = new JObject();
+            foreach (var key in dict.Keys)
+            {
+                JToken token = JToken.FromObject(dict[key]);
+                jsDict[key] = token;
+            }
+            if (!_json.ContainsKey("Dictionaries"))
+                _json.Add("Dictionaries", new JObject());
+            _json["Dictionaries"][name] = jsDict;
         }
 
         public void SerializeDataTable(DataTable dataTable, string name = null)
@@ -234,7 +251,9 @@ namespace MARS_LauncherLib
             df["data"] = data;
 
             string tableName = name != null ? name : dataTable.TableName;
-            _json[tableName] = df;
+            if(!_json.ContainsKey("DataFrames"))
+                _json.Add("DataFrames", new JObject());
+            _json["DataFrames"][tableName] = df;
         }
 
         public DataTable DeserializeDataTable(string name, List<System.Type> columnTypes = null)
@@ -295,7 +314,7 @@ namespace MARS_LauncherLib
 
         public Image DeserializeImage(string name)
         {
-            JToken imageToken = _json["Figures"][name];
+            JToken imageToken = _json["Images"][name];
 
             var base64String = imageToken.ToString();
             byte[] data = Convert.FromBase64String(base64String);
@@ -310,7 +329,7 @@ namespace MARS_LauncherLib
         public List<Image> DeserializeImages(List<string> names = null)
         {
             var result = new List<Image>();
-            JToken dataFrames = _json["Figures"];
+            JToken dataFrames = _json["Images"];
             IList<string> imageNames = names != null ? names :
                 dataFrames.Children<JProperty>().Select(p => p.Name).ToList();
 

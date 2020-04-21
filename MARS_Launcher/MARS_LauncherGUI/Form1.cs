@@ -15,6 +15,9 @@ namespace MARS_LauncherGUI
 {
     public partial class Form1 : Form
     {
+        private const string INPUT_TAB_NAME = "tabInput";
+        private const string OUTPUT_TAB_NAME = "tabOutput";
+
         public Form1()
         {
             InitializeComponent();
@@ -25,7 +28,7 @@ namespace MARS_LauncherGUI
             this.Close();
         }
 
-        private DataGridView CreateDataGridView(string name, DataTable dataTable)
+        private DataGridView CreateDataGridView(DataTable dataTable)
         {
             DataGridView dataGridView = new DataGridView();
             dataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -33,15 +36,13 @@ namespace MARS_LauncherGUI
             dataGridView.RowHeadersVisible = false;
             dataGridView.AllowUserToAddRows = false;
             dataGridView.AllowUserToDeleteRows = false;
-            //dataGridView.Name = name;
             dataGridView.DataSource = dataTable;
             return dataGridView;
         }
 
-        private PictureBox CreatePictureBox(string name, Image image)
+        private PictureBox CreatePictureBox(Image image)
         {
             PictureBox pictureBox = new PictureBox();
-            //pictureBox.Name = name;
             pictureBox.Dock = DockStyle.Fill;
             pictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox.Image = image;
@@ -50,16 +51,49 @@ namespace MARS_LauncherGUI
 
         private void DisplayData(DataTable data)
         {
-            int j = 0;
-            DataGridView dataGridView = CreateDataGridView("dgvResult" + (j + 1).ToString(), data);
+            DataGridView dataGridView = CreateDataGridView(data);
             AddTabPage(tabResult, data.TableName, dataGridView);
         }
 
         private void DisplayData(Image image)
         {
-            int j = 0;
-            PictureBox pictureBox = CreatePictureBox(String.Format("pbxResult{0}", j + 1), image);
+            PictureBox pictureBox = CreatePictureBox(image);
             AddTabPage(tabResult, image.Tag.ToString(), pictureBox);
+        }
+
+        private Dictionary<string, object> GetDataAsDictionary(DataGridView dataGridView)
+        {
+            Dictionary<string, object> result = new Dictionary<string, object>();
+
+            if (dataGridView.Columns.Count != 2)
+                throw new ApplicationException("Property data grid can only have two columns.");
+
+            foreach (DataGridViewRow dgvRow in dataGridView.Rows)
+            {
+                if(dgvRow.Cells[0].Value != null)
+                    result[dgvRow.Cells[0].Value.ToString()] = dgvRow.Cells[1].Value;
+            }
+            return result;
+        }
+
+        private DataTable GetData(DataGridView dataGridView)
+        {
+            DataTable result = new DataTable();
+
+            foreach (DataGridViewColumn dgvColumn in dataGridView.Columns)
+                result.Columns.Add(dgvColumn.HeaderText);
+
+            foreach (DataGridViewRow dgvRow in dataGridView.Rows)
+            {
+                var row = result.NewRow();
+                if (dgvRow.Cells.Count > 0 && dgvRow.Cells[0].Value != null)
+                {
+                    for (int i = 0; i < dgvRow.Cells.Count; ++i)
+                        row.SetField(i, dgvRow.Cells[i].Value);
+                    result.Rows.Add(row);
+                }
+            }
+            return result;
         }
 
         private TabPage AddTabPage(TabControl tabControl, string name, Control controlToAdd)
@@ -83,17 +117,18 @@ namespace MARS_LauncherGUI
         private void btnRun_Click(object sender, EventArgs e)
         {
             var launcher = new MarsLauncher(txtRootFolder.Text, txtPythonProgram.Text);
-            //string xml;
-            //xml = "Dummy";
-
             string stdInput;
             var serializer = new JSONDataSerializer();
             serializer.StartSerialize();
-            serializer.SerializeString(txtPythonScript.Text, "Python Script");
-            serializer.SerializeString(txtRootFolder.Text, "Root Folder");
-            //DataTable dtFromGrid = new DataTable();
-            //dtFromGrid = dataGridView1.DataSource as DataTable;//?? new DataTable();
-            //serializer.serialize(dataGridView1, "Curve");
+            serializer.SerializeScalar("Python Script", txtPythonScript.Text);
+            serializer.SerializeScalar("Root Folder", txtRootFolder.Text);
+            serializer.SerializeScalar("A Number", 5.7);
+
+            Dictionary<string, object> dict = GetDataAsDictionary(dgvInputProperties);
+            DataTable inputTable = GetData(dgvInputProperties);
+
+            serializer.SerializeDictionary("InputProperties", dict);
+            serializer.SerializeDataTable(inputTable, "InputTable");
             stdInput = serializer.EndSerialize();
 
             txtOutput.Text = "Launching " + txtPythonScript.Text;
@@ -122,6 +157,16 @@ namespace MARS_LauncherGUI
 
             serializer.EndDeserialize();
             lblStatus.Text = "Done";
+        }
+
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            foreach (TabPage page in tabResult.TabPages)
+            {
+                if (page.Name != INPUT_TAB_NAME && page.Name != OUTPUT_TAB_NAME)
+                    tabResult.TabPages.Remove(page);
+            }
+            txtOutput.Clear();
         }
     }
 }

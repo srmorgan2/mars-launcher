@@ -37,13 +37,18 @@ def print_dataframe_as_csv(df):
 
 
 def add_data_to_dictionary(dct, key, data):
-    type_to_key_map = {pd.DataFrame: 'DataFrames', dict: 'Dictionaries', bytes: 'Figures'}
+    type_to_key_map = {pd.DataFrame: 'DataFrames', dict: 'Dictionaries', bytes: 'Images'}
+    scalar_types = (type(None), str, int, float, bool)
+    scalar_type_key = 'Scalars'
 
     data_type = type(data)
     if data_type in type_to_key_map:
         data_type_key = type_to_key_map[data_type]
         if data_type_key not in dct:
             dct[data_type_key] = {}
+
+    if isinstance(data, scalar_types) and scalar_type_key not in dct:
+        dct[scalar_type_key] = {}
 
     if type(data) == pd.DataFrame:
         dct[data_type_key][key] = data.to_dict(orient='split')
@@ -52,6 +57,8 @@ def add_data_to_dictionary(dct, key, data):
     elif type(data) == bytes:
         data_as_str = base64.b64encode(data).decode()
         dct[data_type_key][key] = data_as_str
+    elif isinstance(data, scalar_types):
+        dct[scalar_type_key][key] = data
     else:
         raise Exception("Only DataFrames can be added to the output.")
 
@@ -73,6 +80,12 @@ def print_dictionary_as_json(dct):
     print("JSON")
     print(json.dumps(dct, default=json_converter))
     print("Data>>>")
+
+
+def get_dictionary_from_json(stream):
+    if stream.readable():
+        js = stream.read()
+        return json.loads(js)
 
 
 def process_my_data(my_data):
@@ -127,7 +140,8 @@ database.test_me()
 
 print("Starting the MARS tool...")
 
-input_data = pd.DataFrame()
+input_data = get_dictionary_from_json(sys.stdin)
+
 output_data = {}
 
 for i in range(5):
